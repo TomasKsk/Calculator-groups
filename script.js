@@ -19,6 +19,43 @@ let operandArr = ["÷", "x", "-", "+"]
 let resolved = false;
 let calcMemCount = 0;
 
+
+const genCalcStorage = () => {
+    memStorage.innerHTML = '';
+    for (let a in calcStorage) {
+    //generate html content of storage item 
+    //header
+        memStorage.innerHTML += `<div class='storage-item' id='${a}'><div><h3><span class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[a][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div></div>`;
+
+        //container items
+        calcStorage[a][0].map((b,c) => {
+            if (typeof(b) == 'number' && c !== calcStorage[a][0].length - 1) {
+                document.getElementById(a).innerHTML += `
+                <div><span id="${c}" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
+                <span id='${c}' class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
+            } else {
+                document.getElementById(a).innerHTML += `<div>${b}</div>`;
+            };
+        });
+    };
+}
+// App storage
+const saveData = () => {
+    localStorage.setItem('Calc_save', JSON.stringify(calcStorage));
+};
+
+const loadData = () => {
+    if (localStorage.getItem('Calc_save') !== null) {
+        tempLocal = localStorage.getItem('Calc_save');
+        calcStorage = JSON.parse(tempLocal);
+        genCalcStorage();
+    } else {
+        localStorage.setItem('Calc_save', JSON.stringify({}));
+    }
+};
+
+loadData();
+
 const calcFunc = (e) => {
     let target = e.target.innerText;
     let numCheck = numArr.includes(target);
@@ -160,26 +197,6 @@ const parseOp = (num1, op, num2) => {
     if (op === '÷') return num1 / num2;
 };
 
-const genCalcStorage = () => {
-        memStorage.innerHTML = '';
-        for (let a in calcStorage) {
-        //generate html content of storage item 
-        //header
-        memStorage.innerHTML += `<div class='storage-item' id='${a}'><div><h3><span class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[a][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div></div>`;
-
-        //container items
-        calcStorage[a][0].map((b,c) => {
-            if (typeof(b) == 'number' && c !== calcStorage[a][0].length - 1) {
-                document.getElementById(a).innerHTML += `
-                <div><span id="${c}" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
-                <span id='${c}' class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
-            } else {
-                document.getElementById(a).innerHTML += `<div>${b}</div>`;
-            };
-        });
-    };
-}
-
 const deleteMem = (e) => {
     // Get the text from the first child node of the parent element
     const selector = e.target.parentNode.firstChild.textContent;
@@ -195,7 +212,6 @@ const deleteMem = (e) => {
 
     // Update calcStorage with the filtered object
     calcStorage = newObj;
-    genCalcStorage();
 
     // Update keys and memory references in the new object
     const updatedCalcStorage = {};
@@ -211,6 +227,7 @@ const deleteMem = (e) => {
 
     calcStorage = updatedCalcStorage;
     calcMemCount = count - 1;
+    saveData();
     genCalcStorage();
 }
 
@@ -233,6 +250,8 @@ const saveCalc = () => {
     console.log('calcstorage', calcStorage)
     genCalcStorage();
     reset();
+    saveData();
+
 };
 
 const select = (arr) => {
@@ -251,6 +270,7 @@ const renameHeader = (a) => {
             console.log(calcStorage);
         };
     };
+    saveData();
     genCalcStorage();
 };
 
@@ -265,6 +285,7 @@ const rename = (a) => {
             console.log(calcStorage);
         };
     };
+    saveData();
     genCalcStorage();
 };
 
@@ -285,7 +306,7 @@ const recalc = (arr) => {
 
 const changeNum = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel = a.target.parentNode.parentNode.parentNode.childNodes[0].textContent;
+    const sel = a.target.parentNode.parentNode.parentNode.childNodes[0].textContent.split(' ')[0];
     const sel2 = a.target.parentNode;
     //calcStorage[sel][0][calcStorage[sel][0].length - 1] = '(recalc(calcStorage[sel][0]))';
     for (let a in calcStorage) {
@@ -294,8 +315,9 @@ const changeNum = (a) => {
             calcStorage[a][0][sel2.id] = parseFloat(sel2.textContent);
             console.log('toto', recalc(calcStorage[a][0]))
             calcStorage[a][0][calcStorage[a][0].length - 1] = recalc(calcStorage[a][0]);
-        }
-    }
+        };
+    };
+    saveData();
     genCalcStorage();
 };
 
