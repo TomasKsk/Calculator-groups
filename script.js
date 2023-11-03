@@ -171,7 +171,7 @@ const genCalcStorage = () => {
         calcStorage[a][0].map((b,c) => {
             if (typeof(b) == 'number' && c !== calcStorage[a][0].length - 1) {
                 document.getElementById(a).innerHTML += `
-                <div><span id="${c}" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>   
+                <div><span id="${c}" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
                 <span id='${c}' class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
             } else {
                 document.getElementById(a).innerHTML += `<div>${b}</div>`;
@@ -256,7 +256,8 @@ const renameHeader = (a) => {
 
 const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel = a.target.parentNode.parentNode.childNodes[0].textContent;
+    const sel = a.target.parentNode.parentNode.childNodes[0].textContent.split(' ')[0];
+    console.log('toto je sel', sel)
 
     for (let b in calcStorage) {
         if (calcStorage[b][2] == sel) {
