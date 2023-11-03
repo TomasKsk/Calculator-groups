@@ -81,6 +81,7 @@ const calcFunc = (e) => {
                 updateD(calcNum);
                 updateDmem(calcMem);
                 calcNum2 = '';
+                calcNum = '';
                 calcOp = '';
                 resolved = true;
                 // here should the save button appear
@@ -110,6 +111,7 @@ const memFunc = (a) => {
                     temp.firstValue = sel;
                 }
                 calcDisplay.textContent = sel;
+                calcNum = sel;
                 temp.previousKeyType = 'number';
             };
         };
@@ -163,19 +165,53 @@ const genCalcStorage = () => {
         for (let a in calcStorage) {
         //generate html content of storage item 
         //header
-        memStorage.innerHTML += `<div class='storage-item' id='${calcStorage[a][2]}'><div><h3><span class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[a][2]}</span></h3></div></div>`;
+        memStorage.innerHTML += `<div class='storage-item' id='${a}'><div><h3><span class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[a][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div></div>`;
 
         //container items
         calcStorage[a][0].map((b,c) => {
             if (typeof(b) == 'number' && c !== calcStorage[a][0].length - 1) {
-                document.getElementById(calcStorage[a][2]).innerHTML += `
+                document.getElementById(a).innerHTML += `
                 <div><span id="${c}" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>   
                 <span id='${c}' class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
             } else {
-                document.getElementById(calcStorage[a][2]).innerHTML += `<div>${b}</div>`;
+                document.getElementById(a).innerHTML += `<div>${b}</div>`;
             };
         });
     };
+}
+
+const deleteMem = (e) => {
+    // Get the text from the first child node of the parent element
+    const selector = e.target.parentNode.firstChild.textContent;
+        
+    // Create a filtered object without the selected item
+    const newObj = Object.fromEntries(
+        Object.entries(calcStorage)
+            .filter(([key, value]) => value[2] !== selector)
+    );
+
+    // Collect the keys and rename them according to their index
+    const tempKeys = Object.keys(newObj).map((_, index) => `calc_${index + 1}`);
+
+    // Update calcStorage with the filtered object
+    calcStorage = newObj;
+    genCalcStorage();
+
+    // Update keys and memory references in the new object
+    const updatedCalcStorage = {};
+    let count = 1;
+
+    for (const key in calcStorage) {
+        updatedCalcStorage[`calc_${count}`] = calcStorage[key];
+        if (/calc/.test(calcStorage[key][2])) {
+            calcStorage[key][2] = tempKeys[count - 1];
+        }
+        count++;
+    }
+
+    calcStorage = updatedCalcStorage;
+    calcMemCount = count - 1;
+    genCalcStorage();
 }
 
 const saveCalc = () => {
