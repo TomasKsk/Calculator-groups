@@ -48,6 +48,7 @@ const loadData = () => {
     if (localStorage.getItem('Calc_save') !== null) {
         tempLocal = localStorage.getItem('Calc_save');
         calcStorage = JSON.parse(tempLocal);
+        calcMemCount = Object.keys(calcStorage)[Object.keys(calcStorage).length - 1].match(/\d+/)[0];
         genCalcStorage();
     } else {
         localStorage.setItem('Calc_save', JSON.stringify({}));
