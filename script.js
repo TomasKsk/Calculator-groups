@@ -18,21 +18,21 @@ let numArr = ["0","1","2","3","4","5","6","7","8","9"]
 let operandArr = ["÷", "x", "-", "+"]
 let resolved = false;
 let calcMemCount = 0;
-
+let showCalcSwitch = false;
 
 const genCalcStorage = () => {
     memStorage.innerHTML = '';
     for (let a in calcStorage) {
     //generate html content of storage item 
     //header
-        memStorage.innerHTML += `<div class='storage-item' id='${a}'><div><h3><span class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[a][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div></div>`;
+        memStorage.innerHTML += `<div class='storage-item' id='${a}'><div><h3><span onfocusout="renameHeader(event)" class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[a][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div></div>`;
 
         //container items
         calcStorage[a][0].map((b,c) => {
             if (typeof(b) == 'number' && c !== calcStorage[a][0].length - 1) {
                 document.getElementById(a).innerHTML += `
-                <div><span id="${c}" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
-                <span id='${c}' class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
+                <div><span id="${c}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
+                <span id='${c}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
             } else {
                 document.getElementById(a).innerHTML += `<div>${b}</div>`;
             };
@@ -143,7 +143,7 @@ const memFunc = (a) => {
         let temp = calculator.dataset;
         let idSel = a.target.id
         for (let a in calcStorage) {
-            if (calcStorage[a][2] == idSel) {
+            if (a == idSel) {
                 let sel = calcStorage[a][0][calcStorage[a][0].length - 1];
                 if (temp.firstValue == '') {
                     temp.firstValue = sel;
@@ -278,14 +278,25 @@ const renameHeader = (a) => {
 const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
     const sel = a.target.parentNode.parentNode.childNodes[0].textContent.split(' ')[0];
-    console.log('toto je sel', sel)
+    const sel2 = a.target.parentNode.parentNode.id;
+    console.log('toto je sel', sel2, a.target.id)
 
+    /*
     for (let b in calcStorage) {
         if (calcStorage[b][2] == sel) {
             calcStorage[b][1][a.target.id] = a.target.textContent
             console.log(calcStorage);
         };
     };
+    */
+
+    for (let b in calcStorage) {
+        console.log('toto teraz robim', b)
+        if (b == sel2) {
+            calcStorage[b][1][a.target.id] = a.target.textContent;
+            console.log(calcStorage);
+        }
+    }
     saveData();
     genCalcStorage();
 };
@@ -298,21 +309,21 @@ const recalc = (arr) => {
     temp2.splice(0,3)
 
     while(temp2.length > 0 && temp2[0] !== '=') {
-      let cur = temp2.splice(0,2);
-      console.log(cur);
-      temp = parseOp(temp, cur[0], cur[1]);
+    let cur = temp2.splice(0,2);
+    console.log(cur);
+    temp = parseOp(temp, cur[0], cur[1]);
     }
     return temp;
 }
 
 const changeNum = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel = a.target.parentNode.parentNode.parentNode.childNodes[0].textContent.split(' ')[0];
+    const sel = a.target.parentNode.parentNode.parentNode.id;
     const sel2 = a.target.parentNode;
     //calcStorage[sel][0][calcStorage[sel][0].length - 1] = '(recalc(calcStorage[sel][0]))';
     for (let a in calcStorage) {
         console.log(calcStorage[a][2])
-        if (calcStorage[a][2] == sel) {
+        if (a == sel) {
             calcStorage[a][0][sel2.id] = parseFloat(sel2.textContent);
             console.log('toto', recalc(calcStorage[a][0]))
             calcStorage[a][0][calcStorage[a][0].length - 1] = recalc(calcStorage[a][0]);
@@ -322,10 +333,107 @@ const changeNum = (a) => {
     genCalcStorage();
 };
 
+const showCalcMem = () => {
+    let selector = document.querySelector('.calc-mem-storage');
+    selector.classList.toggle('visible');
+    showCalcSwitch = showCalcSwitch ? false : true;
+    menuIcon();
+}
+
+// load svg icons into html
+let menuIcoHtml = document.getElementById('menu-icon-place');
+let saveIcoHtml = document.getElementById('save-icon-place');
+
+const menuIcon = () => {
+    let temp = document.getElementById('calc-mem-storage')
+    if (showCalcSwitch) {
+        menuIcoHtml.innerHTML = 'x'
+    } else {
+        menuIcoHtml.innerHTML = '≡'
+    }
+}
+
+menuIcon();
 
 
+// SVG icons
 
+saveIcoHtml.innerHTML = `
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <!-- License: CC Attribution. Made by Taigaio: https://github.com/taigaio/taiga-design -->
+    <svg 
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    width="20"
+    height="20"
+    viewBox="0 0 400 400.00001"
+    id="svg2"
+    version="1.1"
+    inkscape:version="0.91 r13725"
+    sodipodi:docname="save.svg">
+    <defs
+        id="defs4" />
+    <sodipodi:namedview
+        id="base"
+        pagecolor="#ffffff"
+        bordercolor="#666666"
+        borderopacity="1.0"
+        inkscape:pageopacity="0.0"
+        inkscape:pageshadow="2"
+        inkscape:zoom="0.98994949"
+        inkscape:cx="244.49048"
+        inkscape:cy="180.68004"
+        inkscape:document-units="px"
+        inkscape:current-layer="layer1"
+        showgrid="false"
+        units="px"
+        showguides="true"
+        inkscape:guide-bbox="true"
+        inkscape:window-width="1920"
+        inkscape:window-height="1056"
+        inkscape:window-x="1920"
+        inkscape:window-y="24"
+        inkscape:window-maximized="1">
+        <sodipodi:guide
+        position="200.71429,121.42857"
+        orientation="1,0"
+        id="guide23298" />
+    </sodipodi:namedview>
+    <metadata
+        id="metadata7">
+        <rdf:RDF>
+        <cc:Work
+            rdf:about="">
+            <dc:format>image/svg+xml</dc:format>
+            <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+            <dc:title>
 
-
+    </dc:title>
+        </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <g
+        inkscape:label="Capa 1"
+        inkscape:groupmode="layer"
+        id="layer1"
+        transform="translate(0,-652.36216)">
+        <path
+        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:25;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+        d="m 2.5e-5,652.36213 0,400.00007 399.999945,0 0,-311.40627 -88.5937,-88.5938 -286.406245,0 z m 90.98633,26.8985 218.025385,0 0,133.8652 -218.025385,0 z m 149.982415,19.7558 0,86 43,0 0,-86 z"
+        id="save"
+        inkscape:connector-curvature="0"
+        sodipodi:nodetypes="ccccccccccccccccc">
+        <title
+            id="title23500">save</title>
+        </path>
+    </g>
+    </svg>
+`
 
 
