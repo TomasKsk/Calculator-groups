@@ -9,34 +9,42 @@
     <title>Group Calculator</title>
 </head>
 <body>
-    <div id="calc-main" class="calc-grid">
-        <div class="calc-display">
-            <div class="calc-current"></div>
-            <div class="calc-mem"></div>
-            <div class="save-button hide"><span style="font-family: wingdings;" onclick="saveCalc()"><</span></div>
-        </div>
-        <div class="calc-keys" onclick="calcFunc(event)">
-            <button class="op1" data-action="add">+</button>
-            <button class="op2" data-action="subtract">-</button>
-            <button class="op3" data-action="multiply">x</button>
-            <button class="op4" data-action="divide">÷</button>
-            <button>7</button>
-            <button>8</button>
-            <button>9</button>
-            <button>4</button>
-            <button>5</button>
-            <button>6</button>
-            <button>1</button>
-            <button>2</button>
-            <button>3</button>
-            <button>0</button>
-            <button class="op5" data-action="decimal">.</button>
-            <button class="op6" data-action="clear">AC</button>
-            <button class="op7" data-action="calculate">=</button>
-        </div>
-    </div>
-    <div class="calc-mem-storage" onclick="memFunc(event)">
+    <div class="container">
+        <div id="calc-main" class="calc-grid">
+            <div class="calc-display">
+                <div id="menu-icon-place" onclick="showCalcMem()" class="storage-window">
 
+                </div>
+                <div class="calc-current"></div>
+                <div class="calc-mem"></div>
+                <div class="save-button hide"><span id="save-icon-place" style="font-family: wingdings;" onclick="saveCalc()">
+                    
+                </span>
+            </div>
+            </div>
+            <div class="calc-keys" onclick="calcFunc(event)">
+                <button class="op1" data-action="add">+</button>
+                <button class="op2" data-action="subtract">-</button>
+                <button class="op3" data-action="multiply">x</button>
+                <button class="op4" data-action="divide">÷</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>0</button>
+                <button class="op5" data-action="decimal">.</button>
+                <button id="AC-key" class="op6" data-action="clear">C</button>
+                <button class="op7" data-action="calculate">=</button>
+            </div>
+        </div>
+        <div id="calc-mem-storage" class="calc-mem-storage" onclick="memFunc(event)">
+    
+        </div>
     </div>
     
     <script src="script.js"></script>

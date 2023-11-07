@@ -1,9 +1,14 @@
+/*
+- prerob AC na switch kde AC - vymaze iba calcmem1 a zmeni sa AC na A. A potom vymaze aj calcMem2 --- done 7/11/23
+- spravit moznost aby na uz vyrobene itemy v memory sa dali pridat dalsie polozky
+*/
 const calculator = document.getElementById('calc-main');
 const calcDisplay = document.querySelector('.calc-current');
 const calcDispMem = document.querySelector('.calc-mem');
 const saveIco = document.querySelector('.save-button');
 const memStorage = document.querySelector('.calc-mem-storage');
 const keys = document.getElementsByTagName("BODY")[0];
+const acKey = document.getElementById('AC-key')
 //let calcMem = {} //if group calcs
 let calcStorage = {};
 let calcStoreName = {}; 
@@ -19,6 +24,7 @@ let operandArr = ["÷", "x", "-", "+"]
 let resolved = false;
 let calcMemCount = 0;
 let showCalcSwitch = false;
+let calcACswitch = 0;
 
 const genCalcStorage = () => {
     memStorage.innerHTML = '';
@@ -78,11 +84,19 @@ const calcFunc = (e) => {
             calcNum += target;
             // update the display
             updateD(calcNum);
+            if (calcACswitch > 0) {
+                calcACswitch--;
+                acKey.textContent = 'C'
+            }
         } else if (target === '.' && numLenCheck) {
             // Handle the decimal point
             if (!(/[.]/).test(calcNum)) {
                 calcNum += target;
                 updateD(calcNum);
+                if (calcACswitch > 0) {
+                calcACswitch--;
+                acKey.textContent = 'C'
+            }
             }
         } else if (opCheck) {
             // save the operand
@@ -125,9 +139,21 @@ const calcFunc = (e) => {
                 // here should the save button appear
                 saveIco.classList.remove('hide');
             }
-        } else if (target === 'AC') {
+        } else if (target === 'C') {
             // reset all
-            reset();
+            if (calcACswitch == 0) {
+                calcNum = '';
+                calcDisplay.textContent = '';
+                if (calcNum2.length > 0) {
+                    calcACswitch++;
+                    e.target.textContent = 'CE';
+                }
+                    
+            } else {
+                reset();
+                calcACswitch--;
+                e.target.textContent = 'C';
+            };
         };
     };
     console.log('calclmem', calcMem)
@@ -238,10 +264,11 @@ const saveCalc = () => {
         return !operandArr.includes(a)
         ? +(a)
         : a;
-    })
+    });
+    
     calcMemCount++;
     //create the calc mem
-    calcStorage[`calc_${calcMemCount}`] = [calcMem.concat('=', parseFloat(calcDisplay.textContent))]; // calcStorage{calc_num: [all calculations, sum]}
+    calcStorage[`calc_${calcMemCount}`] = [calcMem.concat('=', recalc(calcMem))]; // calcStorage{calc_num: [all calculations, sum]}
     //push zero names
     calcStorage[`calc_${calcMemCount}`].push(calcStorage[`calc_${calcMemCount}`][0].map(a => (typeof a == 'number') ? '...' : null)); // calcStorage{calc_num: [null, ...]}
     //generate header both keys and content of object so the name can change but not sorting
@@ -435,5 +462,3 @@ saveIcoHtml.innerHTML = `
     </g>
     </svg>
 `
-
-
