@@ -26,6 +26,21 @@ let calcMemCount = 0;
 let showCalcSwitch = false;
 let calcACswitch = 0;
 
+const addNum = (e) => {
+    // get the id of the object
+    let selector = e.target.parentNode.parentNode.id;
+    let selCalc = calcStorage[selector][0];
+    let selNames = calcStorage[selector][1];
+
+    // use the spread operator to add one new number with a plus sign
+    calcStorage[selector][0] = [...selCalc.slice(0, selCalc.length - 2), '+', 0, ...selCalc.slice(selCalc.length - 2)];
+    calcStorage[selector][1] = [...selNames.slice(0, selCalc.length - 2), null, '...', ...selNames.slice(selCalc.length - 2)];
+    console.log([...selCalc.slice(0, selCalc.length - 2), '+', 0, ...selCalc.slice(selCalc.length - 2)]);
+
+    // use the generator storage function to recalculate and populate the memory storage container
+    genCalcStorage();
+}
+
 const genCalcStorage = () => {
     memStorage.innerHTML = '';
     for (let a in calcStorage) {
@@ -35,10 +50,15 @@ const genCalcStorage = () => {
 
         //container items
         calcStorage[a][0].map((b,c) => {
-            if (typeof(b) == 'number' && c !== calcStorage[a][0].length - 1) {
-                document.getElementById(a).innerHTML += `
-                <div><span id="${c}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
-                <span id='${c}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
+            if (typeof(b) == 'number') {
+                if (c !== calcStorage[a][0].length - 1) {
+                    document.getElementById(a).innerHTML += `
+                    <div><span id="${c}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${b}</strong></span>
+                    <span id='${c}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${calcStorage[a][1][c]}</span></div>`;
+                } else {
+                    document.getElementById(a).innerHTML += `<div class="last-item">${b}<button onclick="addNum(event)">Add</button></div>`;
+                }
+                
             } else {
                 document.getElementById(a).innerHTML += `<div>${b}</div>`;
             };

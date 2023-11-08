@@ -143,13 +143,18 @@ body {
 
 .storage-item > div:last-child {
     height: auto;
-    width: auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    border-top: 2px solid black;
 }
 
 .storage-item:hover > div:last-child {
     margin-top: 5px;
     border-top: 2px solid black;
 }
+
+
 
 h3 {
     font-weight: 800;
