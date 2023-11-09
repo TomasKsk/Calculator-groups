@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Group Calculator</title>
+</head>
+<body>
+    <div class="container">
+        <div id="calc-main" class="calc-grid">
+            <div class="calc-display">
+                <div id="menu-icon-place" onclick="showCalcMem()" class="storage-window">
+
+                </div>
+                <div class="calc-current"></div>
+                <div class="calc-mem"></div>
+                <div class="save-button hide"><span id="save-icon-place" style="font-family: wingdings;" onclick="saveCalc()">
+                    
+                </span>
+            </div>
+            </div>
+            <div class="calc-keys" onclick="calcFunc(event)">
+                <button class="op1">+</button>
+                <button class="op2">-</button>
+                <button class="op3">x</button>
+                <button class="op4">÷</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>0</button>
+                <button class="op5">.</button>
+                <button id="AC-key" class="op6">C</button>
+                <button class="op7">=</button>
+            </div>
+        </div>
+        <div id="calc-mem-storage" class="calc-mem-storage" onclick="memFunc(event)">
+    
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
