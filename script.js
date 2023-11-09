@@ -1,6 +1,14 @@
 /*
-- prerob AC na switch kde AC - vymaze iba calcmem1 a zmeni sa AC na A. A potom vymaze aj calcMem2 --- done 7/11/23
-- spravit moznost aby na uz vyrobene itemy v memory sa dali pridat dalsie polozky
+- change C to CE when calcmem and calcmem2 have numbers stored --- done 7/11/23
+- posibility to add new items to the storage item container --- done 8/11/23
+- make the possibility to delete an item in the storage item container
+- possibility to change the operator in the storage item container
+- possibility to use the storage items as links not only copying the sum
+- add css media queries
+
+// BUGS
+- while in the first number and operator, using C to erase the current number and changing to CE - it will not erase the calcnum2 and memory
+i.e - 1 + 7 -> C -> CE : done 9/11/23
 */
 const calculator = document.getElementById('calc-main');
 const calcDisplay = document.querySelector('.calc-current');
@@ -159,7 +167,7 @@ const calcFunc = (e) => {
                 // here should the save button appear
                 saveIco.classList.remove('hide');
             }
-        } else if (target === 'C') {
+        } else if (target === 'C' || target === 'CE') {
             // reset all
             if (calcACswitch == 0) {
                 calcNum = '';
@@ -230,7 +238,7 @@ const memFunc = (a) => {
 
 const reset = () => {
     saveIco.classList.add('hide');
-    [calcMem, calcOp, calcNum, calcNum2, calcDispMem.innerText, calcDisplay.innerText] = [[], '', '', '', '', ''];
+    [calcMem, calcOp, calcNum, calcNum2, calcDispMem.textContent, calcDisplay.textContent] = [[], '', '', '', '', ''];
 }
 
 
