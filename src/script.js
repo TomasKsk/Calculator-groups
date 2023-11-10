@@ -6,6 +6,8 @@
 - possibility to use the storage items as links not only copying the sum
 - add css media queries
 - add a button to save the calc item to a csv file
+- while in edit/ renaming mode, when you hit TAB, you will jump to the next item(from number edit to comment) in the line or jump to next line (from comment to number in the next line)
+- have a button to display the items one per line
 
 // BUGS
 - while in the first number and operator, using C to erase the current number and changing to CE - it will not erase the calcnum2 and memory
@@ -267,12 +269,11 @@ const parseOp = (num1, op, num2) => {
 
 const deleteMem = (e) => {
     // Get the text from the first child node of the parent element
-    const selector = e.target.parentNode.firstChild.textContent;
-        
+    const selector = e.target.parentNode.parentNode.parentNode.id;
+
     // Create a filtered object without the selected item
     const newObj = Object.fromEntries(
-        Object.entries(calcStorage)
-            .filter(([key, value]) => value[2] !== selector)
+        Object.entries(calcStorage).filter(([key, value]) => key !== selector)
     );
 
     // Collect the keys and rename them according to their index
@@ -297,7 +298,7 @@ const deleteMem = (e) => {
     calcMemCount = count - 1;
     saveData();
     genCalcStorage();
-}
+};
 
 const saveCalc = () => {
     // convert text to numbers
