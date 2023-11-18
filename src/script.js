@@ -72,13 +72,13 @@ const genCalcStorage = () => {
 };
 
 const generateStorageItemHtml = (key, calc, names) => {
-    let itemHtml = `<div class='storage-item' id='${key}'><div><h3><span onfocusout="renameHeader(event)" class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[key][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
+    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[key][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
 
     calc.forEach((value, index) => {
         if (typeof value === 'number') {
             if (index !== calc.length - 1) {
                 itemHtml += `<div><span data-idParent="${key}" id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${value}</strong></span>
-                            <span id='${index}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${names[index]}</span></div>`;
+                            <span data-idParent="${key}" onclick="select(event)" id='${index}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${names[index]}</span></div>`;
             } else {
                 itemHtml += `<div  data-idParent="${key}" class="last-item">${value}<button onclick="addNum(event)">Add</button></div>`;
             }
@@ -213,7 +213,7 @@ const calcFunc = (e) => {
 
 // functions for memory storage units, like renaming and editing of numbers
 const memFunc = (a) => {
-    console.log('target', a.target, 'parent', a.target.parentNode);
+    // console.log('target', a.target, 'parent', a.target.parentNode);
     //if user clicks on storage item, the sum will be copied to the calcdisplay
     if (a.target.matches('.storage-item')) {
         //reset()
@@ -221,12 +221,10 @@ const memFunc = (a) => {
         let sel = calcStorage[idSel][0].slice(-1); // last item from calc array
         calcDisplay.textContent = sel; 
         calcNum = sel;
-
-        console.log(sel)
-
     };
 
-    //calc storage renaming
+    /*
+    //calc storage renaming - copying old names
     if (a.target.matches('.editable')) {
         var parentSel = a.target.parentNode;
 
@@ -248,6 +246,7 @@ const memFunc = (a) => {
         headerLastName = a.target.parentNode.parentNode.childNodes[0].textContent;
         select(a);
     };
+    */
 };
 
 const reset = () => {
@@ -330,30 +329,19 @@ const select = (arr) => {
 
 const renameHeader = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel = a.target.parentNode.parentNode.childNodes[0].textContent;
-    console.log(a.target.textContent)
-
-    for (let b in calcStorage) {
-        if (calcStorage[b][2] == headerLastName) {
-            calcStorage[b][2] = a.target.textContent;
-            console.log(calcStorage);
-        };
-    };
+    const sel = a.target.dataset.idparent;
+    console.log(sel)
+    calcStorage[sel][2] = a.target.textContent;
     saveData();
     genCalcStorage();
 };
 
 const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel2 = a.target.parentNode.parentNode.id;
-    console.log('toto je sel', sel2, a.target.id)
+    const sel = a.target.dataset.idparent;
+    console.log(sel)
+    calcStorage[sel][1][a.target.id] = a.target.textContent
 
-    for (let b in calcStorage) {
-        if (b == sel2) {
-            calcStorage[b][1][a.target.id] = a.target.textContent;
-            console.log(calcStorage);
-        }
-    }
     saveData();
     genCalcStorage();
 };
