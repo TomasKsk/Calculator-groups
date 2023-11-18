@@ -77,13 +77,13 @@ const generateStorageItemHtml = (key, calc, names) => {
     calc.forEach((value, index) => {
         if (typeof value === 'number') {
             if (index !== calc.length - 1) {
-                itemHtml += `<div><span data-idParent="${key}" id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${value}</strong></span>
+                itemHtml += `<div><strong><span onclick="select(event)" data-idParent="${key}" id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}">${value}</span></strong>
                             <span data-idParent="${key}" onclick="select(event)" id='${index}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${names[index]}</span></div>`;
             } else {
                 itemHtml += `<div  data-idParent="${key}" class="last-item">${value}<button onclick="addNum(event)">Add</button></div>`;
             }
         } else if(index !== calc.length - 2) {
-            itemHtml += `<div  data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {changeOp(event)}">${value}</div>`;
+            itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {changeOp(event)}">${value}</div>`;
         } else {
             itemHtml += `<div>${value}</div>`;
         }
@@ -111,9 +111,7 @@ const loadData = () => {
 
 loadData();
 
-const changeOp = (e) => {
 
-}
 
 const calcFunc = (e) => {
     let target = e.target.innerText;
@@ -261,8 +259,8 @@ const parseOp = (num1, op, num2) => {
     num2 = +(num2);
     if (op === '+') return num1 + num2;
     if (op === '-') return num1 - num2;
-    if (op === 'x') return num1 * num2;
-    if (op === '÷') return num1 / num2;
+    if (op === 'x' || op === '*') return num1 * num2;
+    if (op === '÷' || op === '/') return num1 / num2;
 };
 
 const deleteMem = (e) => {
@@ -363,17 +361,24 @@ const recalc = (arr) => {
 
 const changeNum = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel = a.target.parentNode.parentNode.parentNode.id;
-    const sel2 = a.target.parentNode;
-    //calcStorage[sel][0][calcStorage[sel][0].length - 1] = '(recalc(calcStorage[sel][0]))';
-    for (let a in calcStorage) {
-        console.log(calcStorage[a][2])
-        if (a == sel) {
-            calcStorage[a][0][sel2.id] = parseFloat(sel2.textContent);
-            console.log('toto', recalc(calcStorage[a][0]))
-            calcStorage[a][0][calcStorage[a][0].length - 1] = recalc(calcStorage[a][0]);
-        };
-    };
+    const sel = a.target.dataset.idparent;
+    const index = a.target.id;
+    calcStorage[sel][0][index] = +(a.target.textContent);
+    const itemMem = calcStorage[sel][0].slice(0,-1);
+    calcStorage[sel][0] = itemMem.concat(recalc(itemMem));
+
+    saveData();
+    genCalcStorage();
+};
+
+const changeOp = (e) => {
+    e.target.setAttribute('contenteditable', false);
+    let sel = e.target.dataset.idparent;
+    let index = e.target.dataset.index;
+    calcStorage[sel][0][index] = e.target.textContent;
+    const itemMem = calcStorage[sel][0].slice(0,-1);
+    calcStorage[sel][0] = itemMem.concat(recalc(itemMem));
+
     saveData();
     genCalcStorage();
 };
