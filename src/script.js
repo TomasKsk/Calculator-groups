@@ -8,19 +8,21 @@
 - add a button to save the calc item to a csv file
 - while in edit/ renaming mode, when you hit TAB, you will jump to the next item(from number edit to comment) in the line or jump to next line (from comment to number in the next line)
 - have a button to display the items one per line
+- remove the menu button with mediaw querry for desktop and tablet resolutions
+- 
 
 // BUGS
 - while in the first number and operator, using C to erase the current number and changing to CE - it will not erase the calcnum2 and memory
 i.e - 1 + 7 -> C -> CE : done 9/11/23
 - the calcMemCount is not being updated after the page reload --- done 10/11/23 - must retrieve the length of the object by using Object.keys()
 */
-const calculator = document.getElementById('calc-main');
+const calculator = document.querySelector('#calc-main');
 const calcDisplay = document.querySelector('.calc-current');
 const calcDispMem = document.querySelector('.calc-mem');
 const saveIco = document.querySelector('.save-button');
 const memStorage = document.querySelector('.calc-mem-storage');
 const keys = document.getElementsByTagName("BODY")[0];
-const acKey = document.getElementById('AC-key')
+const acKey = document.querySelector('#AC-key');
 //let calcMem = {} //if group calcs
 let calcStorage = {};
 let calcStoreName = {}; 
@@ -31,8 +33,8 @@ let calcNum2 = '';
 let calcOp = '';
 let calcObj = {};
 let calcMem = [];
-let numArr = ["0","1","2","3","4","5","6","7","8","9"]
-let operandArr = ["÷", "x", "-", "+"]
+let numArr = ["0","1","2","3","4","5","6","7","8","9"];
+let operandArr = ["÷", "x", "-", "+"];
 let resolved = false;
 let calcMemCount = 0;
 let showCalcSwitch = false;
@@ -57,10 +59,10 @@ const updateCalcStorage = (key, updatedCalc, updatedNames) => {
 
 const genCalcStorage = () => {
     let storageHtml = '';
-    console.log(calcStorage)
+    // console.log(calcStorage)
     for (let key in calcStorage) {
         const [calc, names] = calcStorage[key];
-        console.log(key, calc, names)
+        // console.log(key, calc, names)
 
         storageHtml += generateStorageItemHtml(key, calc, names);
     }
@@ -79,6 +81,8 @@ const generateStorageItemHtml = (key, calc, names) => {
             } else {
                 itemHtml += `<div class="last-item">${value}<button onclick="addNum(event)">Add</button></div>`;
             }
+        } else if(index !== calc.length - 2) {
+            itemHtml += `<div onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {changeOp(event)}">${value}</div>`;
         } else {
             itemHtml += `<div>${value}</div>`;
         }
@@ -94,7 +98,7 @@ const saveData = () => {
 
 const loadData = () => {
     if (localStorage.getItem('Calc_save') !== null) {
-        tempLocal = localStorage.getItem('Calc_save');
+        const tempLocal = localStorage.getItem('Calc_save');
         calcStorage = JSON.parse(tempLocal);
         calcMemCount = (Object.keys(calcStorage).length > 0) ? +(Object.keys(calcStorage)[Object.keys(calcStorage).length - 1].match(/\d+/)[0]) : 0
         console.log(calcStorage, calcMemCount)
@@ -410,11 +414,11 @@ const showCalcMem = () => {
 }
 
 // load svg icons into html
-let menuIcoHtml = document.getElementById('menu-icon-place');
-let saveIcoHtml = document.getElementById('save-icon-place');
+let menuIcoHtml = document.querySelector('#menu-icon-place');
+let saveIcoHtml = document.querySelector('#save-icon-place');
 
 const menuIcon = () => {
-    let temp = document.getElementById('calc-mem-storage')
+    let temp = document.querySelector('#calc-mem-storage')
     if (showCalcSwitch) {
         menuIcoHtml.innerHTML = 'x'
     } else {
