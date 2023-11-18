@@ -9,7 +9,8 @@
 - while in edit/ renaming mode, when you hit TAB, you will jump to the next item(from number edit to comment) in the line or jump to next line (from comment to number in the next line)
 - have a button to display the items one per line
 - remove the menu button with mediaw querry for desktop and tablet resolutions
-- 
+- change in the create storage function the items to carry the id of the table itself with data attribute 
+- change the object structure of calc storage items so the app wont call indexes but key names
 
 // BUGS
 - while in the first number and operator, using C to erase the current number and changing to CE - it will not erase the calcnum2 and memory
@@ -76,13 +77,13 @@ const generateStorageItemHtml = (key, calc, names) => {
     calc.forEach((value, index) => {
         if (typeof value === 'number') {
             if (index !== calc.length - 1) {
-                itemHtml += `<div><span id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${value}</strong></span>
+                itemHtml += `<div><span data-idParent="${key}" id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}"><strong>${value}</strong></span>
                             <span id='${index}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${names[index]}</span></div>`;
             } else {
-                itemHtml += `<div class="last-item">${value}<button onclick="addNum(event)">Add</button></div>`;
+                itemHtml += `<div  data-idParent="${key}" class="last-item">${value}<button onclick="addNum(event)">Add</button></div>`;
             }
         } else if(index !== calc.length - 2) {
-            itemHtml += `<div onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {changeOp(event)}">${value}</div>`;
+            itemHtml += `<div  data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {changeOp(event)}">${value}</div>`;
         } else {
             itemHtml += `<div>${value}</div>`;
         }
@@ -109,6 +110,10 @@ const loadData = () => {
 };
 
 loadData();
+
+const changeOp = (e) => {
+
+}
 
 const calcFunc = (e) => {
     let target = e.target.innerText;
@@ -209,26 +214,16 @@ const calcFunc = (e) => {
 // functions for memory storage units, like renaming and editing of numbers
 const memFunc = (a) => {
     console.log('target', a.target, 'parent', a.target.parentNode);
-    console.log(calculator.dataset)
-    //selecting and taking the calculated number from storage
+    //if user clicks on storage item, the sum will be copied to the calcdisplay
     if (a.target.matches('.storage-item')) {
         //reset()
-        let temp = calculator.dataset;
-        let idSel = a.target.id
-        for (let a in calcStorage) {
-            if (a == idSel) {
-                let sel = calcStorage[a][0][calcStorage[a][0].length - 1];
-                if (temp.firstValue == '') {
-                    temp.firstValue = sel;
-                }
-                calcDisplay.textContent = sel;
-                calcNum = sel;
-                temp.previousKeyType = 'number';
-            };
-        };
-        console.log(calculator.dataset)
+        let idSel = a.target.id;
+        let sel = calcStorage[idSel][0].slice(-1); // last item from calc array
+        calcDisplay.textContent = sel; 
+        calcNum = sel;
 
-        //document.querySelector('.op6').textContent = 'AC'
+        console.log(sel)
+
     };
 
     //calc storage renaming
@@ -350,21 +345,10 @@ const renameHeader = (a) => {
 
 const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
-    const sel = a.target.parentNode.parentNode.childNodes[0].textContent.split(' ')[0];
     const sel2 = a.target.parentNode.parentNode.id;
     console.log('toto je sel', sel2, a.target.id)
 
-    /*
     for (let b in calcStorage) {
-        if (calcStorage[b][2] == sel) {
-            calcStorage[b][1][a.target.id] = a.target.textContent
-            console.log(calcStorage);
-        };
-    };
-    */
-
-    for (let b in calcStorage) {
-        console.log('toto teraz robim', b)
         if (b == sel2) {
             calcStorage[b][1][a.target.id] = a.target.textContent;
             console.log(calcStorage);
