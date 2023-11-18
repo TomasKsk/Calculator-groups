@@ -80,7 +80,7 @@ const generateStorageItemHtml = (key, calc, names) => {
                 itemHtml += `<div class="last-item">${value}<button data-idParent="${key}" onclick="addNum(event)">Add</button></div>`;
             }
         } else if(index !== calc.length - 2) {
-            itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {event.target.setAttribute('contenteditable', false)">${value}</div>`;
+            itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {event.target.setAttribute('contenteditable', false)}">${value}</div>`;
         } else {
             itemHtml += `<div>${value}</div>`;
         }
@@ -360,7 +360,7 @@ const recalc = (arr) => {
 }
 
 const changeNum = (a) => {
-    a.target.setAttribute('contenteditable', false);
+    // a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
     const index = a.target.id;
     calcStorage[sel]['calculation'][index] = +(a.target.textContent);
@@ -372,7 +372,7 @@ const changeNum = (a) => {
 };
 
 const changeOp = (e) => {
-    e.target.setAttribute('contenteditable', false);
+    // e.target.setAttribute('contenteditable', false);
     let sel = e.target.dataset.idparent;
     let index = e.target.dataset.index;
     calcStorage[sel]['calculation'][index] = e.target.textContent;
