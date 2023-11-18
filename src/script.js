@@ -2,14 +2,14 @@
 - change C to CE when calcmem and calcmem2 have numbers stored --- done 7/11/23
 - posibility to add new items to the storage item container --- done 8/11/23
 - make the possibility to delete an item in the storage item container
-- possibility to change the operator in the storage item container
+- possibility to change the operator in the storage item container --- done 18/11/23
 - possibility to use the storage items as links not only copying the sum
 - add css media queries
 - add a button to save the calc item to a csv file
 - while in edit/ renaming mode, when you hit TAB, you will jump to the next item(from number edit to comment) in the line or jump to next line (from comment to number in the next line)
 - have a button to display the items one per line
 - remove the menu button with mediaw querry for desktop and tablet resolutions
-- change in the create storage function the items to carry the id of the table itself with data attribute 
+- change in the create storage function the items to carry the id of the table itself with data attribute ---done 18/11/23
 - change the object structure of calc storage items so the app wont call indexes but key names
 
 // BUGS
@@ -54,7 +54,7 @@ const addNum = (e) => {
 };
 
 const updateCalcStorage = (key, updatedCalc, updatedNames) => {
-    calcStorage[key][0] = updatedCalc;
+    calcStorage[key]['calculation'] = updatedCalc;
     calcStorage[key][1] = updatedNames;
 };
 
@@ -216,7 +216,7 @@ const memFunc = (a) => {
     if (a.target.matches('.storage-item')) {
         //reset()
         let idSel = a.target.id;
-        let sel = calcStorage[idSel][0].slice(-1); // last item from calc array
+        let sel = calcStorage[idSel]['calculation'].slice(-1); // last item from calc array
         calcDisplay.textContent = sel; 
         calcNum = sel;
     };
@@ -306,11 +306,14 @@ const saveCalc = () => {
     
     calcMemCount++;
     //create the calc mem
-    calcStorage[`calc_${calcMemCount}`] = [calcMem.concat('=', recalc(calcMem))]; // calcStorage{calc_num: [all calculations, sum]}
+    let thisId = `calc_${calcMemCount}`;
+    calcStorage[thisId] = {};
+
+    calcStorage[thisId]['calculation'] = calcMem.concat('=', recalc(calcMem)); // calcStorage{calc_num: [all calculations, sum]}
     //push zero names
-    calcStorage[`calc_${calcMemCount}`].push(calcStorage[`calc_${calcMemCount}`][0].map(a => (typeof a == 'number') ? '...' : null)); // calcStorage{calc_num: [null, ...]}
+    calcStorage[thisId]['comments'] = calcStorage[thisId]['calculation'].map(a => (typeof a == 'number') ? '...' : null); // calcStorage{calc_num: [null, ...]}
     //generate header both keys and content of object so the name can change but not sorting
-    calcStorage[`calc_${calcMemCount}`].push(`calc_${calcMemCount}`) // calcStorage{calc_num: calc_num}
+    calcStorage[thisId]['name'] = thisId // calcStorage{calc_num: calc_num}
 
     memStorage.textContent = '';
     console.log('calcstorage', calcStorage)
@@ -347,14 +350,14 @@ const rename = (a) => {
 const recalc = (arr) => {
     let temp2 = [].concat(arr);
     console.log(temp2)
-    let temp = parseOp(temp2[0], temp2[1], temp2[2]);
+    let temp = parseOp(temp2['calculation'], temp2[1], temp2[2]);
     console.log(temp)
     temp2.splice(0,3)
 
-    while(temp2.length > 0 && temp2[0] !== '=') {
+    while(temp2.length > 0 && temp2['calculation'] !== '=') {
     let cur = temp2.splice(0,2);
     console.log(cur);
-    temp = parseOp(temp, cur[0], cur[1]);
+    temp = parseOp(temp, cur['calculation'], cur[1]);
     }
     return temp;
 }
@@ -363,9 +366,9 @@ const changeNum = (a) => {
     a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
     const index = a.target.id;
-    calcStorage[sel][0][index] = +(a.target.textContent);
-    const itemMem = calcStorage[sel][0].slice(0,-1);
-    calcStorage[sel][0] = itemMem.concat(recalc(itemMem));
+    calcStorage[sel]['calculation'][index] = +(a.target.textContent);
+    const itemMem = calcStorage[sel]['calculation'].slice(0,-1);
+    calcStorage[sel]['calculation'] = itemMem.concat(recalc(itemMem));
 
     saveData();
     genCalcStorage();
@@ -375,9 +378,9 @@ const changeOp = (e) => {
     e.target.setAttribute('contenteditable', false);
     let sel = e.target.dataset.idparent;
     let index = e.target.dataset.index;
-    calcStorage[sel][0][index] = e.target.textContent;
-    const itemMem = calcStorage[sel][0].slice(0,-1);
-    calcStorage[sel][0] = itemMem.concat(recalc(itemMem));
+    calcStorage[sel]['calculation'][index] = e.target.textContent;
+    const itemMem = calcStorage[sel]['calculation'].slice(0,-1);
+    calcStorage[sel]['calculation'] = itemMem.concat(recalc(itemMem));
 
     saveData();
     genCalcStorage();
