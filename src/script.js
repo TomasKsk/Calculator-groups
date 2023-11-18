@@ -11,6 +11,7 @@
 - remove the menu button with mediaw querry for desktop and tablet resolutions
 - change in the create storage function the items to carry the id of the table itself with data attribute ---done 18/11/23
 - change the object structure of calc storage items so the app wont call indexes but key names
+- change the gencalc storage items, the onkey enter should trigger the focusout/ exitedittext so the renaming function is not called twice (once from focusout and secondly from hitting enter key)
 
 // BUGS
 - while in the first number and operator, using C to erase the current number and changing to CE - it will not erase the calcnum2 and memory
@@ -42,12 +43,11 @@ let showCalcSwitch = false;
 let calcACswitch = 0;
 
 const addNum = (e) => {
-    const storageKey = e.target.parentNode.parentNode.id;
-    const currentStorage = calcStorage[storageKey];
-    const [currentCalc, currentNames] = currentStorage;
+    const storageKey = e.target.dataset.idparent;
+    const curr = calcStorage[storageKey];
 
-    const updatedCalc = [...currentCalc.slice(0, -2), '+', 0, ...currentCalc.slice(-2)];
-    const updatedNames = [...currentNames.slice(0, -2), null, '...', ...currentNames.slice(-2)];
+    const updatedCalc = [...curr['calculation'].slice(0, -2), '+', 0, ...curr['calculation'].slice(-2)];
+    const updatedNames = [...curr['comments'].slice(0, -2), null, '...', ...curr['comments'].slice(-2)];
 
     updateCalcStorage(storageKey, updatedCalc, updatedNames);
     genCalcStorage();
@@ -55,24 +55,21 @@ const addNum = (e) => {
 
 const updateCalcStorage = (key, updatedCalc, updatedNames) => {
     calcStorage[key]['calculation'] = updatedCalc;
-    calcStorage[key][1] = updatedNames;
+    calcStorage[key]['comments'] = updatedNames;
 };
 
 const genCalcStorage = () => {
     let storageHtml = '';
     // console.log(calcStorage)
     for (let key in calcStorage) {
-        const [calc, names] = calcStorage[key];
-        // console.log(key, calc, names)
-
-        storageHtml += generateStorageItemHtml(key, calc, names);
+        storageHtml += generateStorageItemHtml(key, calcStorage[key]['calculation'], calcStorage[key]['comments']);
     }
 
     memStorage.innerHTML = storageHtml;
 };
 
 const generateStorageItemHtml = (key, calc, names) => {
-    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[key][2]}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
+    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="if (event.keyCode == 13) renameHeader(event)">${calcStorage[key]['name']}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
 
     calc.forEach((value, index) => {
         if (typeof value === 'number') {
@@ -80,7 +77,7 @@ const generateStorageItemHtml = (key, calc, names) => {
                 itemHtml += `<div><strong><span onclick="select(event)" data-idParent="${key}" id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {changeNum(event)}">${value}</span></strong>
                             <span data-idParent="${key}" onclick="select(event)" id='${index}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {rename(event)}">${names[index]}</span></div>`;
             } else {
-                itemHtml += `<div  data-idParent="${key}" class="last-item">${value}<button onclick="addNum(event)">Add</button></div>`;
+                itemHtml += `<div class="last-item">${value}<button data-idParent="${key}" onclick="addNum(event)">Add</button></div>`;
             }
         } else if(index !== calc.length - 2) {
             itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {changeOp(event)}">${value}</div>`;
@@ -284,8 +281,8 @@ const deleteMem = (e) => {
 
     for (const key in calcStorage) {
         updatedCalcStorage[`calc_${count}`] = calcStorage[key];
-        if (/calc/.test(calcStorage[key][2])) {
-            calcStorage[key][2] = tempKeys[count - 1];
+        if (/calc/.test(calcStorage[key]['name'])) {
+            calcStorage[key]['name'] = tempKeys[count - 1];
         }
         count++;
     }
@@ -332,7 +329,7 @@ const renameHeader = (a) => {
     a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
     console.log(sel)
-    calcStorage[sel][2] = a.target.textContent;
+    calcStorage[sel]['name'] = a.target.textContent;
     saveData();
     genCalcStorage();
 };
@@ -341,7 +338,7 @@ const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
     console.log(sel)
-    calcStorage[sel][1][a.target.id] = a.target.textContent
+    calcStorage[sel]['comments'][a.target.id] = a.target.textContent;
 
     saveData();
     genCalcStorage();
@@ -350,14 +347,14 @@ const rename = (a) => {
 const recalc = (arr) => {
     let temp2 = [].concat(arr);
     console.log(temp2)
-    let temp = parseOp(temp2['calculation'], temp2[1], temp2[2]);
+    let temp = parseOp(temp2[0], temp2[1], temp2[2]);
     console.log(temp)
     temp2.splice(0,3)
 
-    while(temp2.length > 0 && temp2['calculation'] !== '=') {
-    let cur = temp2.splice(0,2);
-    console.log(cur);
-    temp = parseOp(temp, cur['calculation'], cur[1]);
+    while(temp2.length > 0 && temp2[0] !== '=') {
+        let cur = temp2.splice(0,2);
+        console.log(cur);
+        temp = parseOp(temp, cur[0], cur[1]);
     }
     return temp;
 }
