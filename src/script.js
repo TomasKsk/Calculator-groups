@@ -12,6 +12,7 @@
 - change in the create storage function the items to carry the id of the table itself with data attribute ---done 18/11/23
 - change the object structure of calc storage items so the app wont call indexes but key names --- done 18/11/23
 - change the gencalc storage items, the onkey enter should trigger the focusout/ exitedittext so the renaming function is not called twice (once from focusout and secondly from hitting enter key) --- done 18/11/23
+- change the ID naming in the item container - better to use data-index so there are no repeated IDs
 
 // BUGS
 - while in the first number and operator, using C to erase the current number and changing to CE - it will not erase the calcnum2 and memory
@@ -69,18 +70,18 @@ const genCalcStorage = () => {
 };
 
 const generateStorageItemHtml = (key, calc, names) => {
-    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="if (event.keyCode == 13) {event.target.setAttribute('contenteditable', false)}">${calcStorage[key]['name']}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
+    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="keyEvent(event)">${calcStorage[key]['name']}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
 
     calc.forEach((value, index) => {
         if (typeof value === 'number') {
             if (index !== calc.length - 1) {
-                itemHtml += `<div><strong><span onclick="select(event)" data-idParent="${key}" id="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="if (event.keyCode == 13) {event.target.setAttribute('contenteditable', false)}">${value}</span></strong>
-                            <span data-idParent="${key}" onclick="select(event)" id='${index}' onfocusout="rename(event)" class="editable" onkeypress="if (event.keyCode == 13) {event.target.setAttribute('contenteditable', false)}">${names[index]}</span></div>`;
+                itemHtml += `<div><strong><span onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="keyEvent(event)">${value}</span></strong>
+                            <span data-idParent="${key}" onclick="select(event)" data-index="${index}" onfocusout="rename(event)" class="editable" onkeypress="keyEvent(event)">${names[index]}</span></div>`;
             } else {
-                itemHtml += `<div class="last-item">${value}<button data-idParent="${key}" onclick="addNum(event)">Add</button></div>`;
+                itemHtml += `<div class="last-item">${value}<button data-index="${index}" data-idParent="${key}" onclick="addNum(event)">Add</button></div>`;
             }
         } else if(index !== calc.length - 2) {
-            itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="if (event.keyCode == 13) {event.target.setAttribute('contenteditable', false)}">${value}</div>`;
+            itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="keyEvent(event)">${value}</div>`;
         } else {
             itemHtml += `<div>${value}</div>`;
         }
@@ -89,6 +90,15 @@ const generateStorageItemHtml = (key, calc, names) => {
     itemHtml += '</div>';
     return itemHtml;
 };
+
+const keyEvent = (e) => {
+    if (e.keyCode == 13) {
+        e.target.setAttribute('contenteditable', false);
+    } else if (e.keyCode == 9) {
+        console.log('asdf')
+    }
+}
+
 // App storage
 const saveData = () => {
     localStorage.setItem('Calc_save', JSON.stringify(calcStorage));
@@ -338,7 +348,7 @@ const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
     console.log(sel)
-    calcStorage[sel]['comments'][a.target.id] = a.target.textContent;
+    calcStorage[sel]['comments'][a.target.dataset.index] = a.target.textContent;
 
     saveData();
     genCalcStorage();
@@ -362,7 +372,7 @@ const recalc = (arr) => {
 const changeNum = (a) => {
     // a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
-    const index = a.target.id;
+    const index = a.target.dataset.index;
     calcStorage[sel]['calculation'][index] = +(a.target.textContent);
     const itemMem = calcStorage[sel]['calculation'].slice(0,-1);
     calcStorage[sel]['calculation'] = itemMem.concat(recalc(itemMem));
