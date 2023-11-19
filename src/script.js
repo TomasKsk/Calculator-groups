@@ -70,18 +70,18 @@ const genCalcStorage = () => {
 };
 
 const generateStorageItemHtml = (key, calc, names) => {
-    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="keyEvent(event)">${calcStorage[key]['name']}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
+    let itemHtml = `<div onclick="memFunc(event)" class='storage-item' id='${key}'><div><h3><span onclick="select2(event)" data-idParent="${key}" onfocusout="renameHeader(event)" class="editable" onkeypress="keyEvent(event)">${calcStorage[key]['name']}</span> <button class="delete-mem" onclick="deleteMem(event)">x</button></h3></div>`;
 
     calc.forEach((value, index) => {
         if (typeof value === 'number') {
             if (index !== calc.length - 1) {
-                itemHtml += `<div><strong><span onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="keyEvent(event)">${value}</span></strong>
-                            <span data-idParent="${key}" onclick="select(event)" data-index="${index}" onfocusout="rename(event)" class="editable" onkeypress="keyEvent(event)">${names[index]}</span></div>`;
+                itemHtml += `<div><strong><span onclick="select2(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeNum(event)" class="editable" onkeypress="keyEvent(event)">${value}</span></strong>
+                            <span data-idParent="${key}" onclick="select2(event)" data-index="${index}" onfocusout="rename(event)" class="editable" onkeypress="keyEvent(event)">${names[index]}</span></div>`;
             } else {
                 itemHtml += `<div class="last-item">${value}<button data-index="${index}" data-idParent="${key}" onclick="addNum(event)">Add</button></div>`;
             }
         } else if(index !== calc.length - 2) {
-            itemHtml += `<div onclick="select(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="keyEvent(event)">${value}</div>`;
+            itemHtml += `<div onclick="select2(event)" data-idParent="${key}" data-index="${index}" onfocusout="changeOp(event)" onkeypress="keyEvent(event)">${value}</div>`;
         } else {
             itemHtml += `<div>${value}</div>`;
         }
@@ -94,8 +94,20 @@ const generateStorageItemHtml = (key, calc, names) => {
 const keyEvent = (e) => {
     if (e.keyCode == 13) {
         e.target.setAttribute('contenteditable', false);
+
+        // if tab is hitted
     } else if (e.keyCode == 9) {
-        console.log('asdf')
+        // has to be triggered by onkeydown
+        let sel = +(e.target.dataset.index);
+        let id = e.target.dataset.idparent;
+        let next = document.querySelector(`#${id}`).querySelector(`[data-index="${sel + 1}"]`);
+        console.log(next, sel + 1);
+        next.focus()
+        next.setAttribute('contenteditable', true);
+        document.querySelector(`#${id}`).querySelector(`[data-index="${sel + 1}"]`).focus()
+
+        //document.execCommand("selectall", null, false);
+        //document.execCommand('selectAll',false,null);
     }
 }
 
@@ -227,31 +239,6 @@ const memFunc = (a) => {
         calcDisplay.textContent = sel; 
         calcNum = sel;
     };
-
-    /*
-    //calc storage renaming - copying old names
-    if (a.target.matches('.editable')) {
-        var parentSel = a.target.parentNode;
-
-        if (parentSel.matches('H3')) {
-            console.log('nasiel som nadpis');
-            select(a);
-            headerLastName = a.target.textContent;
-        };
-
-        if (parentSel.matches('div')) {
-            console.log('nasiel som pomenovanie v kontajneri');
-            select(a);
-        };
-
-    };
-
-    if (a.target.matches('strong')) {
-        console.log('nasiel som cislo kalkulacie');
-        headerLastName = a.target.parentNode.parentNode.childNodes[0].textContent;
-        select(a);
-    };
-    */
 };
 
 const reset = () => {
@@ -330,7 +317,7 @@ const saveCalc = () => {
 
 };
 
-const select = (arr) => {
+const select2 = (arr) => {
     arr.target.setAttribute('contenteditable', true);
     document.execCommand('selectAll',false,null);
 }
@@ -347,7 +334,7 @@ const renameHeader = (a) => {
 const rename = (a) => {
     a.target.setAttribute('contenteditable', false);
     const sel = a.target.dataset.idparent;
-    console.log(sel)
+    console.log(a, sel)
     calcStorage[sel]['comments'][a.target.dataset.index] = a.target.textContent;
 
     saveData();
